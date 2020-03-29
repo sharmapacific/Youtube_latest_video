@@ -1,33 +1,38 @@
+import arrow
+
 from django.db.models import Q
 import requests
+
 from rest_framework import status
 
 from video.constants import LATEST_VIDEO
-from video.models import VideoInfo
-from video.secrets import V3_KEY
+from video.models import Configuration, VideoInfo
 from video.utils import paginate_objects
 
 
 class VideoData:
-    def __init__(self):
-        self._s_key = V3_KEY[0]
 
     def get_latest(self, request):
         objs_qs = VideoInfo.objects.all()
         objs = paginate_objects(request, objs_qs)
         return objs
 
-    def fetch_again(self):
-        pass
-
     def fetch_latest(self):
         """
-        Retreive latest video information and returning as json
+        Retreive active key and latest video information and returning as json
         """
-        url = LATEST_VIDEO.format(self._s_key)
-        response = requests.get(url)
-        if response.status_code == status.HTTP_200_OK:
-            return response.json()
+        count = True
+        while count:
+            _s_key = self.get_active_key()
+            url = LATEST_VIDEO.format(_s_key)
+            response = requests.get(url)
+            if response.status_code == status.HTTP_200_OK:
+                return response.json()
+                count = False
+            elif response.status_code == status.HTTP_403_FORBIDDEN:
+                self.disable_key(_s_key)
+            else:
+                count = False
 
     def bulk_create(self, res_data):
         """
@@ -60,10 +65,14 @@ class VideoData:
 
     def insert_data(self):
         records = self.fetch_latest()
-        # self.bulk_create(records)         #  Extra Functionality
-        self.get_or_create(records)
+        if records:
+            # self.bulk_create(records)         #  Extra Functionality
+            self.get_or_create(records)
 
     def search_in_video(self, word):
+        """
+        Perform search query in VideoInfo model
+        """
         objs = VideoInfo.objects.filter(
             title__icontains=word,
             description__icontains=word
@@ -73,3 +82,20 @@ class VideoData:
                 Q(title__icontains=word) | Q(description__icontains=word)
             ).values()
         return objs
+
+    def get_active_key(self):
+        """
+        Get the Active API Key
+        """
+        keys = Configuration.objects.filter(is_active=True)
+        if len(keys) > 0:
+            return keys[0].key
+
+    def disable_key(self, _s_key):
+        """
+        Update the API key when it is get exhausted
+        """
+        Configuration.objects.filter(key=_s_key).update(
+            is_active=False,
+            exhaust_on=arrow.utcnow().datetime
+            )

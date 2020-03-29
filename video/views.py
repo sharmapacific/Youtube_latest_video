@@ -13,17 +13,19 @@ class VideoDetailView(APIView):
         Retreive videos information in paginated response
         """
         objs = VideoData().get_latest(request)
-        result = []
-        for obj in objs.object_list:
-            data = {
-                'video_id': obj.video_id,
-                'title': obj.title,
-                'description': obj.description,
-                'published_at': obj.published,
-                'thumbnail_url': obj.thumbnail
-            }
-            result.append(data)
-        return Response(result)
+        if objs:
+            result = []
+            for obj in objs.object_list:
+                data = {
+                    'video_id': obj.video_id,
+                    'title': obj.title,
+                    'description': obj.description,
+                    'published_at': obj.published,
+                    'thumbnail_url': obj.thumbnail
+                }
+                result.append(data)
+            return Response(result)
+        return Response({'message': 'No Result Found!!'})
 
 
 class VideoQueryView(APIView):
@@ -36,17 +38,19 @@ class VideoQueryView(APIView):
         """
         word = request.GET.get('word')
         response = VideoData().search_in_video(word)
-        result = []
-        for obj in response:
-            data = {
-                'video_id': obj.get('video_id'),
-                'title': obj.get('title'),
-                'description': obj.get('description'),
-                'published_at': obj.get('published'),
-                'thumbnail_url': obj.get('thumbnail')
-            }
-            result.append(data)
-        return Response(result)
+        if response:
+            result = []
+            for obj in response:
+                data = {
+                    'video_id': obj.get('video_id'),
+                    'title': obj.get('title'),
+                    'description': obj.get('description'),
+                    'published_at': obj.get('published'),
+                    'thumbnail_url': obj.get('thumbnail')
+                }
+                result.append(data)
+            return Response(result)
+        return Response({'message': 'No Result Found!!'})
 
 
 class StartScripts(APIView):
