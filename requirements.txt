@@ -67,7 +67,7 @@ django-test-without-migrations==0.6
 django-two-factor-auth==1.6.1
 django-webpack-loader==0.6.0
 djangoql==0.8.9
-djangorestframework==3.5.3
+djangorestframework==3.9.1
 djangorestframework-jwt==1.11.0
 docker==3.4.0
 docker-compose==1.21.2
