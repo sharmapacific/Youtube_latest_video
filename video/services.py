@@ -26,7 +26,7 @@ class RunForever:
 def video_scheduler():
     flag = True
     while flag:
-        interval = 5
+        interval = 10
         result = VideoData().insert_data()
         flag = result
         print(f'Running In every - {interval}')
