@@ -17,6 +17,8 @@ class VideoInfo(models.Model):
 
     class Meta:
         ordering = ('-published',)
+        verbose_name = 'Video Information'
+        verbose_name_plural = 'Video Informations'
 
 
 class Configuration(models.Model):
@@ -26,3 +28,7 @@ class Configuration(models.Model):
                                       verbose_name='Created At',
                                       db_index=True)
     exhaust_on = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        verbose_name = 'Key Information'
+        verbose_name_plural = 'Keys Informations'

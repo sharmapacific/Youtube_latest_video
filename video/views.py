@@ -60,4 +60,4 @@ class StartScripts(APIView):
         To run the video scheduler
         """
         video_scheduler()
-        return Response({'result': 'Script Stopped'})
+        return Response({'result': 'Script Not Running!!'})

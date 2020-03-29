@@ -24,13 +24,15 @@ class VideoData:
         count = True
         while count:
             _s_key = self.get_active_key()
-            url = LATEST_VIDEO.format(_s_key)
-            response = requests.get(url)
-            if response.status_code == status.HTTP_200_OK:
-                return response.json()
-                count = False
-            elif response.status_code == status.HTTP_403_FORBIDDEN:
-                self.disable_key(_s_key)
+            if _s_key:
+                url = LATEST_VIDEO.format(_s_key)
+                response = requests.get(url)
+                if response.status_code == status.HTTP_200_OK:
+                    return response.json()
+                elif response.status_code == status.HTTP_403_FORBIDDEN:
+                    self.disable_key(_s_key)
+                else:
+                    count = False
             else:
                 count = False
 
@@ -64,10 +66,16 @@ class VideoData:
                 )
 
     def insert_data(self):
+        """
+        In case records are coming empty, considering here API quota has been
+        exhausted and stop the script
+        """
         records = self.fetch_latest()
         if records:
             # self.bulk_create(records)         #  Extra Functionality
             self.get_or_create(records)
+            return True
+        return False
 
     def search_in_video(self, word):
         """

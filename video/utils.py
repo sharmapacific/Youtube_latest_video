@@ -2,7 +2,7 @@ from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 
 
 def paginate_objects(request, objs_list):
-    paginator = Paginator(objs_list, 5)
+    paginator = Paginator(objs_list, 10)
     page = request.GET.get('page')
     try:
         objs = paginator.page(page)
